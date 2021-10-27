@@ -3,8 +3,8 @@
 REGION
 DEPTO
 MUNICIPIO
-POBLACION
 ELECCION
+POBLACION
 PARTIDO
 MUNICIPIO_ELECCION
 MUNICIPIO_PARTIDO
@@ -22,7 +22,6 @@ INSERT INTO PAIS (pais)
 SELECT DISTINCT temporal.PAIS
 	FROM temporal;
 
-SELECT * FROM PAIS;
 
 #--LLENADO DE REGION----------------------
 
@@ -30,9 +29,6 @@ INSERT INTO REGION (region,fk_id_pais)
 SELECT DISTINCT t.REGION, p.id_pais
 FROM temporal as t, pais as p
 where p.pais = t.PAIS;
-
-SELECT * FROM REGION;
-SELECT count(*) FROM REGION;
 
 
 #--LLENADO DE DEPTO----------------------
@@ -43,11 +39,6 @@ where r.region = t.REGION
 	AND r.fk_id_pais = p.id_pais
     AND p.pais = t.PAIS
 ;
-
-SELECT * FROM DEPTO
-order by fk_id_region;
-
-SELECT count(*) FROM DEPTO;
 
 #--LLENADO DE MUNICIPIO----------------------
 INSERT INTO municipio (MUNICIPIO, fk_id_depto)
@@ -60,25 +51,6 @@ where d.depto = t.depto
     AND p.pais = t.PAIS
 ;
 
-SELECT * FROM municipio;
-SELECT count(*) FROM municipio;
-
-#--LLENADO DE POBLACION----------------------
-INSERT INTO POBLACION (PRIMARIA, NIVEL_MEDIO, UNIVERSITARIO,ANALFABETO, ALFABETO, fk_id_municipio )
-SELECT DISTINCT t.PRIMARIA, t.NIVEL_MEDIO, t.UNIVERSITARIOS, t.ANALFABETOS, t.ALFABETOS, m.id_municipio
-FROM temporal as t, region as r, pais as p, depto as d, municipio as m
-where m.municipio = t.MUNICIPIO
-	AND m.fk_id_depto = d.id_depto
-	AND d.depto = t.depto
-	AND d.fk_id_region = r.id_region
-	AND r.region = t.REGION
-	AND r.fk_id_pais = p.id_pais
-    AND p.pais = t.PAIS
-;
-
-SELECT * FROM POBLACION
-order by fk_id_municipio;
-SELECT count(*) FROM POBLACION;
 
 #--LLENADO DE ELECCION ----------------------
 
@@ -89,25 +61,6 @@ FROM temporal as t
 
 
 
-/*
-#LLENADO COMPROBANDO PAIS, REGION, DEPTO, MUNI.
-
-
-INSERT INTO ELECCION (NOMBRE_ELECCION, eleccion.anio_eleccion, fk_id_municipio )
-SELECT DISTINCT t.NOMBRE_ELECCION, t.AÑO_ELECCION#, m.id_municipio
-FROM temporal as t, region as r, pais as p, depto as d, municipio as m
-where m.municipio = t.MUNICIPIO
-	AND m.fk_id_depto = d.id_depto
-	AND d.depto = t.depto
-	AND d.fk_id_region = r.id_region
-	AND r.region = t.REGION
-	AND r.fk_id_pais = p.id_pais
-    AND p.pais = t.PAIS
-;
-*/
-SELECT * FROM ELECCION;
-SELECT count(*) FROM ELECCION;
-
 #--LLENADO DE PARTIDO------------------------------------------------------------
 
 INSERT INTO partido (PARTIDO, NOMBRE_PARTIDO)
@@ -115,27 +68,7 @@ SELECT DISTINCT t.PARTIDO, t.NOMBRE_PARTIDO
 FROM temporal as t
 ;
 
-SELECT * FROM partido;
-SELECT count(*) FROM partido;
 
-/*
-#LLENADO COMPROBANDO PAIS, REGION, DEPTO, MUNI.
-
-
-INSERT INTO partido (PARTIDO, NOMBRE_PARTIDO, fk_id_municipio )
-SELECT DISTINCT t.PARTIDO, t.NOMBRE_PARTIDO, m.id_municipio
-FROM temporal as t, region as r, pais as p, depto as d, municipio as m
-where m.municipio = t.MUNICIPIO
-	AND m.fk_id_depto = d.id_depto
-	AND d.depto = t.depto
-	AND d.fk_id_region = r.id_region
-	AND r.region = t.REGION
-	AND r.fk_id_pais = p.id_pais
-    AND p.pais = t.PAIS
-;
-*/
-#--LLENADO DE ----------------------
-use bases1p2;
 #--LLENADO DE MUNICIPIO_ELECCION----------------------
 
 INSERT INTO MUNICIPIO_ELECCION (fk_id_municipio, fk_id_eleccion)
@@ -155,11 +88,21 @@ WHERE
     AND t.año_eleccion = e.anio_eleccion
 ;
 
-SELECT * FROM MUNICIPIO_ELECCION
-order by fk_id_municipio
-AND fk_id_eleccion;
+#--LLENADO DE POBLACION----------------------
+INSERT INTO POBLACION (PRIMARIA, NIVEL_MEDIO, UNIVERSITARIO,ANALFABETO, ALFABETO, fk_id_municipio, fk_id_eleccion)
+SELECT DISTINCT t.PRIMARIA, t.NIVEL_MEDIO, t.UNIVERSITARIOS, t.ANALFABETOS, t.ALFABETOS, m.id_municipio, e.id_eleccion
+FROM temporal as t, region as r, pais as p, depto as d, municipio as m, eleccion as e, municipio_eleccion
+where m.municipio = t.MUNICIPIO
+	AND m.fk_id_depto = d.id_depto
+	AND d.depto = t.depto
+	AND d.fk_id_region = r.id_region
+	AND r.region = t.REGION
+	AND r.fk_id_pais = p.id_pais
+    AND p.pais = t.PAIS
+    AND municipio_eleccion.fk_id_municipio = m.id_municipio
+    AND municipio_eleccion.fk_id_eleccion = e.id_eleccion
+;
 
-SELECT count(*) FROM MUNICIPIO_ELECCION;
 
 #--LLENADO DE MUNICIPIO_PARTIDO ----------------------
 
@@ -181,10 +124,6 @@ WHERE
     AND t.nombre_partido = p.nombre_partido
 ;
 
-SELECT * FROM MUNICIPIO_PARTIDO
-order by fk_id_municipio;
-
-SELECT count(*) FROM MUNICIPIO_PARTIDO;
 
 #--LLENADO DE PARTIDO_ELECCCION ----------------------
 
@@ -212,46 +151,6 @@ WHERE
     AND t.nombre_partido = p.nombre_partido
 ;
 
-SELECT * FROM PARTIDO_ELECCION
-order by fk_id_eleccion;
-
-SELECT count(*) FROM PARTIDO_ELECCION;
-
-#--LLENADO DE POBLACION_ELECCION ----------------------
-
-INSERT INTO POBLACION_ELECCION (fk_id_poblacion, fk_id_eleccion)
-SELECT DISTINCT 
-			p.id_poblacion,
-            e.id_eleccion
-FROM TEMPORAL AS t, eleccion AS e, poblacion AS p , pais as a, region as r, depto as d, MUNICIPIO AS m, municipio_eleccion as me
-WHERE 
-		a.pais = t.PAIS
-    AND r.fk_id_pais = a.id_pais
-    AND r.region = t.REGION
-    AND d.fk_id_region = r.id_region
-    AND d.depto = t.depto
-	AND m.fk_id_depto = d.id_depto
-	AND m.municipio = t.municipio
-    
-    AND m.id_municipio = p.fk_id_municipio 
-    AND t.primaria = p.primaria
-    AND t.nivel_medio = p.nivel_medio
-    AND t.universitarios = p.universitario
-    AND t.analfabetos = p.analfabeto
-    AND t.alfabetos = p.alfabeto
-    
-    AND me.fk_id_municipio = m.id_municipio
-    AND me.fk_id_eleccion = e.id_eleccion
-    
-	AND t.nombre_eleccion = e.nombre_eleccion
-    AND t.año_eleccion = e.anio_eleccion
-    
-    
-;
-
-
-SELECT * FROM POBLACION_ELECCION;
-SELECT count(*) FROM POBLACION_ELECCION;
 
 #--LLENADO DE RAZA ----------------------
 
@@ -259,8 +158,6 @@ INSERT INTO RAZA (RAZA)
 SELECT DISTINCT RAZA
 	FROM temporal;
 
-SELECT * FROM RAZA;
-SELECT count(*) FROM RAZA;
 
 #--LLENADO DE SEXO ----------------------
 
@@ -268,8 +165,6 @@ INSERT INTO SEXO (SEXO)
 SELECT DISTINCT SEXO
 	FROM temporal;
 
-SELECT * FROM SEXO;
-SELECT count(*) FROM SEXO;
 
 #--LLENADO DE DETALLE_RAZA ----------------------
 
@@ -297,8 +192,6 @@ WHERE
     AND t.raza = ra.raza
 ;
 
-SELECT * FROM DETALLE_RAZA;
-SELECT count(*) FROM DETALLE_RAZA;
 
 #--LLENADO DE DETALLE_SEXO ----------------------
 
@@ -325,9 +218,6 @@ WHERE
     AND t.alfabetos = p.alfabeto
     AND t.sexo = s.sexo
 ;
-
-SELECT * FROM DETALLE_SEXO;
-SELECT count(*) FROM DETALLE_SEXO;
 
 
 #----------------------------------------------------------------

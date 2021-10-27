@@ -6,28 +6,52 @@ porcentaje de votos en su país. Debe desplegar el nombre de la elección, el
 año de la elección, el país, el nombre del partido político y el porcentaje que
 obtuvo de votos en su país.
 */
+USE BASES1P2;
 
-#PROBLEMA DE QUE NO CUENTA POR PARTIDO
-select eleccion.nombre_eleccion, eleccion.anio_eleccion ,pais , partido.partido , partido.nombre_partido , sum(poblacion.analfabeto + poblacion.alfabeto) as votos 
-from partido, pais, region, depto, municipio, municipio_partido, eleccion, municipio_eleccion, poblacion, poblacion_eleccion, partido_eleccion
-WHERE pais.id_pais = region.fk_id_pais
-	and region.id_region = depto.fk_id_region
-    and municipio.fk_id_depto = depto.id_depto
-    and municipio_partido.fk_id_municipio = municipio.id_municipio
+
+SELECT PAIS.PAIS,municipio, PARTIDO.PARTIDO, PARTIDO.NOMBRE_PARTIDO, SUM(POBLACION.ANALFABETO) AS VOTOS
+FROM PAIS, 
+	 REGION, 
+     DEPTO, 
+     MUNICIPIO, 
+     PARTIDO,
+     MUNICIPIO_PARTIDO,
+     POBLACION 
+WHERE  	 # UNIMOS PAIS, REGION, DEPTO Y MUNI
+		 PAIS.ID_PAIS = REGION.FK_ID_PAIS
+     AND REGION.ID_REGION = DEPTO.FK_ID_REGION
+     AND DEPTO.ID_DEPTO = MUNICIPIO.FK_ID_DEPTO
+     
+		# UNIMOS PARTIDO CON MUNICIPIO
+	and municipio_partido.fk_id_municipio = municipio.id_municipio
     and municipio_partido.fk_id_partido = partido.id_partido
-    #eleccion
-    and municipio_eleccion.fk_id_municipio = municipio.id_municipio
-    and municipio_eleccion.fk_id_eleccion = eleccion.id_eleccion
-    #poblacion
-    and poblacion.fk_id_municipio = municipio.id_municipio
-    #poblacion eleccion
-    and poblacion_eleccion.fk_id_poblacion = poblacion.id_poblacion
-    and poblacion_eleccion.fk_id_eleccion = eleccion.id_eleccion
-    #partido eleccion
-    and partido_eleccion.fk_id_eleccion = eleccion.id_eleccion
-    and partido_eleccion.fk_id_partido = partido.id_partido
-group by partido
+     
+		# UNIMOS POBLACION 
+	 AND POBLACION.FK_ID_MUNICIPIO = MUNICIPIO.ID_MUNICIPIO
+     
+     group by PARTIDO
+ ;
+
+
+
+
+select * from municipio_partido
+order by fk_id_partido
+
 ;
+
+SELECT MUNICIPIO.MUNICIPIO, ID_POBLACION, PARTIDO.NOMBRE_PARTIDO
+FROM  MUNICIPIO, POBLACION, PARTIDO, MUNICIPIO_PARTIDO
+WHERE  # UNIMOS PAIS, REGION, DEPTO Y MUNI
+		# PAIS.ID_PAIS = REGION.FK_ID_PAIS
+     #AND REGION.ID_REGION = DEPTO.FK_ID_REGION
+     #AND DEPTO.ID_DEPTO = MUNICIPIO.FK_ID_DEPTO
+	   # UNIMOS POBLACION 
+	  POBLACION.FK_ID_MUNICIPIO = MUNICIPIO.ID_MUNICIPIO
+	 AND MUNICIPIO_PARTIDO.FK_ID_MUNICIPIO = MUNICIPIO.ID_MUNICIPIO
+     AND MUNICIPIO_PARTIDO.FK_ID_PARTIDO = PARTIDO.ID_PARTIDO
+
+
 
 
 
@@ -66,13 +90,20 @@ where pais.id_pais = region.fk_id_pais
 
 
 # votos por municipio
-select pais, region, depto, municipio, id_poblacion, (poblacion.analfabeto + poblacion.alfabeto) as votos
+select pais, region, depto, municipio, id_poblacion, sum(poblacion.analfabeto + poblacion.alfabeto) as votos
 from pais, region, depto, municipio, poblacion
 where pais.id_pais = region.fk_id_pais
 	and region.id_region = depto.fk_id_region
 	and municipio.fk_id_depto = depto.id_depto
     and poblacion.fk_id_municipio = municipio.id_municipio
+   # AND municipio.municipio = 'Sensuntepeque'
+    group by  municipio
 ;
+
+
+
+
+
 
 # pais con cantidad de votos por pais
 select eleccion.nombre_eleccion, eleccion.anio_eleccion , pais, sum(poblacion.analfabeto + poblacion.alfabeto) as votos
@@ -96,48 +127,11 @@ group by pais
 ;
 
 
-select eleccion.nombre_eleccion, eleccion.anio_eleccion , pais, partido.nombre_partido , (poblacion.analfabeto + poblacion.alfabeto) as votos
-from pais, region, depto, municipio, poblacion, eleccion, municipio_eleccion, partido, municipio_partido #, municipio_partido, poblacion_eleccion
-where pais.id_pais = region.fk_id_pais
-	and region.id_region = depto.fk_id_region
-	and municipio.fk_id_depto = depto.id_depto
-    and poblacion.fk_id_municipio = municipio.id_municipio
-    #eleccion 
-    and municipio_eleccion.fk_id_municipio = municipio.id_municipio
-    and municipio_eleccion.fk_id_eleccion = eleccion.id_eleccion
-    # partido 
-    and municipio_partido.fk_id_municipio = municipio.id_municipio
-    and municipio_partido.fk_id_partido = partido.id_partido
-   # and municipio_partido.fk_id_municipio = municipio.id_municipio
-   # and municipio_partido.fk_id_partido = partido.id_partido
-    # poblacion eleccion
-   # and poblacion_eleccion.fk_id_poblacion = poblacion.id_poblacion
-   # and poblacion_eleccion.fk_id_eleccion = eleccion.id_eleccion
-group by partido
 
-;
 
 #votos por partido
 select partido.nombre_partido
 from partido;
-
-select * 
-from poblacion_eleccion
-where fk_id_poblacion = 2
-;
-
-select * from poblacion_eleccion;
-select * from partido_eleccion;
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -193,3 +187,8 @@ Select count(*)
 from pais, region
 where PAIS.ID_PAIS = REGION.FK_ID_PAIS
 AND PAIS = 'nicaragua'
+
+;
+
+
+USE BASES1P2;

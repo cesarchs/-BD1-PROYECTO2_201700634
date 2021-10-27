@@ -18,6 +18,7 @@ SEXO
 DETALLE_RAZA
 DETALLE_SEXO
 */
+use bases1p2;
 
 drop table DETALLE_SEXO;
 drop table DETALLE_RAZA;
@@ -65,6 +66,12 @@ CREATE TABLE MUNICIPIO(
 	FOREIGN KEY (fk_id_depto) REFERENCES DEPTO(id_depto)
 );
 
+CREATE TABLE ELECCION(
+	id_eleccion int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	nombre_eleccion varchar(100),
+    anio_eleccion int
+);
+
 CREATE TABLE POBLACION (
 	id_poblacion int NOT NULL AUTO_INCREMENT PRIMARY KEY,
     primaria 		int,
@@ -73,14 +80,11 @@ CREATE TABLE POBLACION (
     analfabeto 		int,
     alfabeto 		int,
 	fk_id_municipio int,
-	FOREIGN KEY (fk_id_municipio) REFERENCES MUNICIPIO (id_municipio)
+    fk_id_eleccion  int,
+	FOREIGN KEY (fk_id_municipio) REFERENCES MUNICIPIO (id_municipio),
+    FOREIGN KEY (fk_id_eleccion) REFERENCES eleccion (id_eleccion)
 );
 
-CREATE TABLE ELECCION(
-	id_eleccion int NOT NULL AUTO_INCREMENT PRIMARY KEY,
-	nombre_eleccion varchar(100),
-    anio_eleccion int
-);
 
 CREATE TABLE PARTIDO (
 	id_partido int NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -93,7 +97,8 @@ CREATE TABLE MUNICIPIO_ELECCION (
     fk_id_eleccion 					int,
 	descripcion_municipio_eleccion 	varchar(100) default 'desc muni_ele',
 	FOREIGN KEY (fk_id_municipio) REFERENCES municipio (id_municipio),
-    FOREIGN KEY (fk_id_eleccion) REFERENCES eleccion (id_eleccion)
+    FOREIGN KEY (fk_id_eleccion) REFERENCES eleccion (id_eleccion),
+    PRIMARY KEY (fk_id_municipio, fk_id_eleccion)
 );
 
 CREATE TABLE MUNICIPIO_PARTIDO (
@@ -101,7 +106,8 @@ CREATE TABLE MUNICIPIO_PARTIDO (
     fk_id_partido 					int,
 	descripcion_municipio_partido 	varchar(100) default 'desc muni_parti',
 	FOREIGN KEY (fk_id_municipio) REFERENCES municipio (id_municipio),
-    FOREIGN KEY (fk_id_partido) REFERENCES partido (id_partido)
+    FOREIGN KEY (fk_id_partido) REFERENCES partido (id_partido),
+    PRIMARY KEY (fk_id_municipio, fk_id_partido)
 );
 
 CREATE TABLE PARTIDO_ELECCION (
@@ -114,14 +120,6 @@ CREATE TABLE PARTIDO_ELECCION (
     FOREIGN KEY (fk_id_partido) REFERENCES partido (id_partido)
 );
 
-CREATE TABLE POBLACION_ELECCION (
-	id_poblacion_eleccion int NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    fk_id_poblacion 				int,
-    fk_id_eleccion 					int,
-	descripcion_partido_eleccion 	varchar(100) default 'desc pobla_elec',
-	FOREIGN KEY (fk_id_poblacion) REFERENCES poblacion (id_poblacion),
-    FOREIGN KEY (fk_id_eleccion) REFERENCES eleccion (id_eleccion)
-);
 
 CREATE TABLE RAZA (
 	id_raza int NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -138,7 +136,8 @@ CREATE TABLE DETALLE_RAZA (
     fk_id_raza 					int,
 	descripcion_detalle_raza 	varchar(100) default 'desc detalle raza',
 	FOREIGN KEY (fk_id_poblacion) REFERENCES poblacion (id_poblacion),
-    FOREIGN KEY (fk_id_raza) REFERENCES raza (id_raza)
+    FOREIGN KEY (fk_id_raza) REFERENCES raza (id_raza),
+    PRIMARY KEY (fk_id_poblacion, fk_id_raza)
 );
 
 CREATE TABLE DETALLE_SEXO (
@@ -146,7 +145,8 @@ CREATE TABLE DETALLE_SEXO (
     fk_id_sexo 					int,
 	descripcion_detalle_sexo 	varchar(100) default 'desc detalle sexo',
 	FOREIGN KEY (fk_id_poblacion) REFERENCES poblacion (id_poblacion),
-    FOREIGN KEY (fk_id_sexo) REFERENCES sexo (id_sexo)
+    FOREIGN KEY (fk_id_sexo) REFERENCES sexo (id_sexo),
+    PRIMARY KEY (fk_id_poblacion, fk_id_sexo)
 );
 
 
