@@ -88,21 +88,6 @@ WHERE
     AND t.año_eleccion = e.anio_eleccion
 ;
 
-#--LLENADO DE POBLACION----------------------
-INSERT INTO POBLACION (PRIMARIA, NIVEL_MEDIO, UNIVERSITARIO,ANALFABETO, ALFABETO, fk_id_municipio, fk_id_eleccion)
-SELECT DISTINCT t.PRIMARIA, t.NIVEL_MEDIO, t.UNIVERSITARIOS, t.ANALFABETOS, t.ALFABETOS, m.id_municipio, e.id_eleccion
-FROM temporal as t, region as r, pais as p, depto as d, municipio as m, eleccion as e, municipio_eleccion
-where m.municipio = t.MUNICIPIO
-	AND m.fk_id_depto = d.id_depto
-	AND d.depto = t.depto
-	AND d.fk_id_region = r.id_region
-	AND r.region = t.REGION
-	AND r.fk_id_pais = p.id_pais
-    AND p.pais = t.PAIS
-    AND municipio_eleccion.fk_id_municipio = m.id_municipio
-    AND municipio_eleccion.fk_id_eleccion = e.id_eleccion
-;
-
 
 #--LLENADO DE MUNICIPIO_PARTIDO ----------------------
 
@@ -125,12 +110,36 @@ WHERE
 ;
 
 
+#--LLENADO DE POBLACION----------------------
+INSERT INTO POBLACION (PRIMARIA, NIVEL_MEDIO, UNIVERSITARIO,ANALFABETO, ALFABETO, fk_id_municipio, fk_id_eleccion, fk_id_partido)
+SELECT DISTINCT t.PRIMARIA, t.NIVEL_MEDIO, t.UNIVERSITARIOS, t.ANALFABETOS, t.ALFABETOS, m.id_municipio, e.id_eleccion, pa.id_partido
+FROM temporal as t, region as r, pais as p, depto as d, municipio as m, eleccion as e, municipio_eleccion, partido as pa, municipio_partido as mp
+where 	
+		p.id_pais = r.fk_id_pais
+	AND p.pais = t.PAIS
+    AND d.fk_id_region = r.id_region
+    AND r.region = t.REGION
+	AND m.fk_id_depto = d.id_depto
+	AND d.depto = t.depto
+	AND m.municipio = t.MUNICIPIO
+    
+    AND municipio_eleccion.fk_id_municipio = m.id_municipio
+    AND municipio_eleccion.fk_id_eleccion = e.id_eleccion
+    #municipio partido
+    AND mp.fk_id_municipio = m.id_municipio
+    AND mp.fk_id_partido = pa.id_partido
+    
+    and pa.partido = t.PARTIDO
+    and pa.nombre_partido = t.NOMBRE_PARTIDO
+;
+
+
 #--LLENADO DE PARTIDO_ELECCCION ----------------------
 
-INSERT INTO PARTIDO_ELECCION (fk_id_eleccion, fk_id_partido)
+INSERT INTO PARTIDO_ELECCION (fk_id_partido, fk_id_eleccion)
 SELECT DISTINCT 
-			e.id_eleccion,
-            p.id_partido
+            p.id_partido,
+            e.id_eleccion
 FROM TEMPORAL AS t, eleccion AS e, partido AS p , pais as a, region as r, depto as d, municipio as m, municipio_eleccion as me, municipio_partido as mp
 WHERE 
 		a.pais = t.PAIS

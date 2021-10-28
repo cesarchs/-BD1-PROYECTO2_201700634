@@ -9,63 +9,77 @@ obtuvo de votos en su país.
 USE BASES1P2;
 
 
-SELECT PAIS.PAIS,municipio, PARTIDO.PARTIDO, PARTIDO.NOMBRE_PARTIDO, SUM(POBLACION.ANALFABETO) AS VOTOS
-FROM PAIS, 
-	 REGION, 
-     DEPTO, 
-     MUNICIPIO, 
-     PARTIDO,
-     MUNICIPIO_PARTIDO,
-     POBLACION 
-WHERE  	 # UNIMOS PAIS, REGION, DEPTO Y MUNI
-		 PAIS.ID_PAIS = REGION.FK_ID_PAIS
-     AND REGION.ID_REGION = DEPTO.FK_ID_REGION
-     AND DEPTO.ID_DEPTO = MUNICIPIO.FK_ID_DEPTO
-     
-		# UNIMOS PARTIDO CON MUNICIPIO
-	and municipio_partido.fk_id_municipio = municipio.id_municipio
-    and municipio_partido.fk_id_partido = partido.id_partido
-     
-		# UNIMOS POBLACION 
-	 AND POBLACION.FK_ID_MUNICIPIO = MUNICIPIO.ID_MUNICIPIO
-     
-     group by PARTIDO
- ;
+select t1.id_cliente,t2.id_promocion,t1.maximo 
+from(
+	select max(suma) as maximo,id_cliente 
+    from (
+		select id_cliente,id_promocion,sum(puntos) as suma 
+        from #temp group by id_cliente,id_promocion
+	) as t1 group by id_cliente) as t1
+left join
+(select id_cliente,id_promocion,sum(puntos) as suma from #temp group by id_cliente,id_promocion) as t2 on (t1.maximo=t2.suma)
+####################################################################################################
 
+select eleccion.nombre_eleccion, eleccion.anio_eleccion, pais.pais, partido.nombre_partido , max(suma) as VOTOS
+FROM
+(
+	SELECT pais.id_pais as paiss, eleccion.id_eleccion as id_ele, partido.id_partido as par_id, sum(poblacion.alfabeto + poblacion.analfabeto) as suma
+	FROM pais, region, depto, municipio,
+		poblacion,
+		eleccion, municipio_eleccion,
+		partido, municipio_partido
+	where 	#pais hasta municipio
+			pais.id_pais = region.fk_id_pais
+		and region.id_region = depto.fk_id_region
+		and depto.id_depto = municipio.fk_id_depto
+		# poblacion
+		and poblacion.fk_id_municipio = municipio.id_municipio
+		# eleccion, municipio eleccion
+		and municipio_eleccion.fk_id_municipio = municipio.id_municipio
+		and municipio_eleccion.fk_id_eleccion = eleccion.id_eleccion
+		# partido, municipio partido
+		and municipio_partido.fk_id_municipio = municipio.id_municipio
+		and municipio_partido.fk_id_partido = partido.id_partido
+		and partido.id_partido = poblacion.fk_id_partido
+	group by pais.pais, eleccion.nombre_eleccion, eleccion.anio_eleccion, partido.nombre_partido, partido.partido
 
-
-
-select * from municipio_partido
-order by fk_id_partido
-
+) as tabled , pais, eleccion, partido
+WHERE 
+			tabled.paiss = pais.id_pais
+        and tabled.id_ele = eleccion.id_eleccion
+        and tabled.par_id = partido.id_partido
+        
+	group by  partido.nombre_partido
+    order by  pais.pais,suma desc
+    limit 2
 ;
 
-SELECT MUNICIPIO.MUNICIPIO, ID_POBLACION, PARTIDO.NOMBRE_PARTIDO
-FROM  MUNICIPIO, POBLACION, PARTIDO, MUNICIPIO_PARTIDO
-WHERE  # UNIMOS PAIS, REGION, DEPTO Y MUNI
-		# PAIS.ID_PAIS = REGION.FK_ID_PAIS
-     #AND REGION.ID_REGION = DEPTO.FK_ID_REGION
-     #AND DEPTO.ID_DEPTO = MUNICIPIO.FK_ID_DEPTO
-	   # UNIMOS POBLACION 
-	  POBLACION.FK_ID_MUNICIPIO = MUNICIPIO.ID_MUNICIPIO
-	 AND MUNICIPIO_PARTIDO.FK_ID_MUNICIPIO = MUNICIPIO.ID_MUNICIPIO
-     AND MUNICIPIO_PARTIDO.FK_ID_PARTIDO = PARTIDO.ID_PARTIDO
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+#SOLO FALTA TOMAR EL MAS GRANDE
+SELECT pais.pais as paiss, eleccion.nombre_eleccion as nomb_ele, eleccion.anio_eleccion AS anio_ele, partido.nombre_partido as par_nomb, partido.partido as part_part , sum(poblacion.alfabeto + poblacion.analfabeto) as suma
+FROM pais, region, depto, municipio,
+	poblacion,
+    eleccion, municipio_eleccion,
+    partido, municipio_partido
+where 	#pais hasta municipio
+		pais.id_pais = region.fk_id_pais
+	and region.id_region = depto.fk_id_region
+	and depto.id_depto = municipio.fk_id_depto
+    # poblacion
+    and poblacion.fk_id_municipio = municipio.id_municipio
+    # eleccion, municipio eleccion
+    and municipio_eleccion.fk_id_municipio = municipio.id_municipio
+    and municipio_eleccion.fk_id_eleccion = eleccion.id_eleccion
+    # partido, municipio partido
+    and municipio_partido.fk_id_municipio = municipio.id_municipio
+    and municipio_partido.fk_id_partido = partido.id_partido
+    and partido.id_partido = poblacion.fk_id_partido
+group by pais.pais, eleccion.nombre_eleccion, eleccion.anio_eleccion, partido.nombre_partido, partido.partido
+order by suma desc
+limit 1
+####################################################################################################
 
 
 # PAIS CON LOS PARTIDOS POR PAIS
@@ -126,12 +140,6 @@ where pais.id_pais = region.fk_id_pais
 group by pais
 ;
 
-
-
-
-#votos por partido
-select partido.nombre_partido
-from partido;
 
 
 

@@ -24,13 +24,12 @@ drop table DETALLE_SEXO;
 drop table DETALLE_RAZA;
 drop table SEXO;
 drop table RAZA;
-drop table POBLACION_ELECCION;
 drop table PARTIDO_ELECCION;
 drop table MUNICIPIO_ELECCION;
 drop table MUNICIPIO_PARTIDO;
+drop table POBLACION;
 drop table PARTIDO;
 drop table ELECCION;
-drop table POBLACION;
 drop table MUNICIPIO;
 drop table DEPTO;
 drop table REGION;
@@ -72,6 +71,13 @@ CREATE TABLE ELECCION(
     anio_eleccion int
 );
 
+CREATE TABLE PARTIDO (
+	id_partido int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	partido varchar(100),
+    nombre_partido varchar(100)
+);
+
+
 CREATE TABLE POBLACION (
 	id_poblacion int NOT NULL AUTO_INCREMENT PRIMARY KEY,
     primaria 		int,
@@ -81,16 +87,12 @@ CREATE TABLE POBLACION (
     alfabeto 		int,
 	fk_id_municipio int,
     fk_id_eleccion  int,
+    fk_id_partido   int,
 	FOREIGN KEY (fk_id_municipio) REFERENCES MUNICIPIO (id_municipio),
-    FOREIGN KEY (fk_id_eleccion) REFERENCES eleccion (id_eleccion)
+    FOREIGN KEY (fk_id_eleccion) REFERENCES eleccion (id_eleccion),
+    FOREIGN KEY (fk_id_partido) REFERENCES partido (id_partido)
 );
 
-
-CREATE TABLE PARTIDO (
-	id_partido int NOT NULL AUTO_INCREMENT PRIMARY KEY,
-	partido varchar(100),
-    nombre_partido varchar(100)
-);
 
 CREATE TABLE MUNICIPIO_ELECCION (
 	fk_id_municipio 				int,
@@ -111,13 +113,13 @@ CREATE TABLE MUNICIPIO_PARTIDO (
 );
 
 CREATE TABLE PARTIDO_ELECCION (
-	id_partido_eleccion int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	fk_id_partido 					int,
     fk_id_eleccion 					int,
-    fk_id_partido 					int,
 	descripcion_partido_eleccion 	varchar(100) default 'desc part_elec',
     puesto 							varchar(100) default 'p000',
-	FOREIGN KEY (fk_id_eleccion) REFERENCES eleccion (id_eleccion),
-    FOREIGN KEY (fk_id_partido) REFERENCES partido (id_partido)
+    FOREIGN KEY (fk_id_partido) REFERENCES partido (id_partido),
+    FOREIGN KEY (fk_id_eleccion) REFERENCES eleccion (id_eleccion),
+    PRIMARY KEY (fk_id_partido, fk_id_eleccion)
 );
 
 
