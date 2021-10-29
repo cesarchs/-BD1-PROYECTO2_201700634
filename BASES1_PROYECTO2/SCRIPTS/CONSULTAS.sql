@@ -14,7 +14,7 @@ select * from partido;
 
 
 #SOLO FALTA TOMAR EL MAS GRANDE
-SELECT nomb_ele as NOMBRE_ELECCION, anio_ele AS AÑO_ELECCION , paiss AS PAIS, par_nomb AS NOMBRE_PARTIDO, suma AS VOTOS
+SELECT nomb_ele as NOMBRE_ELECCION, anio_ele AS AÑO_ELECCION , paiss AS PAIS, par_nomb AS NOMBRE_PARTIDO, suma*100/total AS PORCENTAJE
 FROM (
 SELECT pais.pais as paiss, eleccion.nombre_eleccion as nomb_ele, eleccion.anio_eleccion AS anio_ele, partido.nombre_partido as par_nomb, partido.partido as part_part , sum(poblacion.alfabeto + poblacion.analfabeto) as suma
 FROM pais, region, depto, municipio,
@@ -36,9 +36,47 @@ where 	#pais hasta municipio
     and partido.id_partido = poblacion.fk_id_partido
 group by  partido.nombre_partido
 order by  suma desc
-) a group by  paiss
+) a ,(
+SELECT pais.pais as paisss, sum(poblacion.alfabeto + poblacion.analfabeto) as total
+FROM pais, region, depto, municipio,
+	poblacion,
+    eleccion, municipio_eleccion,
+    partido, municipio_partido
+where 	#pais hasta municipio
+		pais.id_pais = region.fk_id_pais
+	and region.id_region = depto.fk_id_region
+	and depto.id_depto = municipio.fk_id_depto
+    # poblacion
+    and poblacion.fk_id_municipio = municipio.id_municipio
+    # eleccion, municipio eleccion
+    and municipio_eleccion.fk_id_municipio = municipio.id_municipio
+    and municipio_eleccion.fk_id_eleccion = eleccion.id_eleccion
+    # partido, municipio partido
+    and municipio_partido.fk_id_municipio = municipio.id_municipio
+    and municipio_partido.fk_id_partido = partido.id_partido
+    and partido.id_partido = poblacion.fk_id_partido
+group by  pais.pais) b
+where b.paisss = a.paiss
+group by  paiss
 order by par_nomb
 ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
