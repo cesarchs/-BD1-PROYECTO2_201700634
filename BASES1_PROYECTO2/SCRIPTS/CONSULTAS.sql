@@ -1,3 +1,4 @@
+USE BASES1P2;
 ##################################################################################################################################################
 #CONSULTA #1
 /*
@@ -55,7 +56,7 @@ order by par_nomb
 ;
 
 
-############################################################################################################################################################
+###################################################################################################################################################################
 #CONSULTA # 2
 /*
 Desplegar total de votos y porcentaje de votos de mujeres por departamento
@@ -106,6 +107,208 @@ FROM (
     where a.paiss = b.paisss
 ;
 
+#####################################################################################################################################################################
+# CONSULTA # 3 
+/*
+	Desplegar el nombre del país, nombre del partido político y número de
+	alcaldías de los partidos políticos que ganaron más alcaldías por país.
+*/
+# varias al del aux
+select pas as pais, par as partido, veces
+FROM
+(
+		SELECT PAIS as pas, PARTIDO as par, COUNT(MUNICIPIO) AS VECES 
+		FROM
+		(
+				SELECT PA AS PAIS, MUNI AS MUNICIPIO, PARTI AS PARTIDO, VOTOS
+				FROM
+				(
+						SELECT pais AS PA, municipio AS MUNI, partido.nombre_partido AS PARTI, sum(poblacion.analfabeto + poblacion.alfabeto) as votos
+						FROM 	PARTIDO, MUNICIPIO_PARTIDO,
+								PAIS, REGION, DEPTO, MUNICIPIO,
+								poblacion
+						WHERE
+								# PAIS - MUNICIPIO 
+								pais.id_pais = region.fk_id_pais
+							and region.id_region = depto.fk_id_region
+							and municipio.fk_id_depto = depto.id_depto
+								# PARTIDO
+							and municipio_partido.fk_id_municipio = municipio.id_municipio
+							and municipio_partido.fk_id_partido = partido.id_partido
+								# POBLACION
+							and poblacion.fk_id_municipio = municipio.id_municipio
+							and poblacion.fk_id_partido = partido.id_partido    
+
+						group by municipio, partido.nombre_partido
+						order by municipio, votos desc
+				) a
+				group by MUNI 
+		) b
+		#where pais = 'HONDURAS'
+		group by PAIS, PARTIDO
+        order by veces desc
+)c
+group by pas
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# PAIS, MUNICIPIO Y PARTIDO Y SUS VOTOS POR MUNICIPIO, SOLO LOS PARTIDOS GANADORES POR MUNICIPIO
+SELECT PA AS PAIS, MUNI AS MUNICIPIO, PARTI AS PARTIDO, VOTOS
+FROM
+(
+		SELECT pais AS PA, municipio AS MUNI, partido.nombre_partido AS PARTI, sum(poblacion.analfabeto + poblacion.alfabeto) as votos
+		FROM 	PARTIDO, MUNICIPIO_PARTIDO,
+				PAIS, REGION, DEPTO, MUNICIPIO,
+				poblacion
+		WHERE
+				# PAIS - MUNICIPIO 
+				pais.id_pais = region.fk_id_pais
+			and region.id_region = depto.fk_id_region
+			and municipio.fk_id_depto = depto.id_depto
+				# PARTIDO
+			and municipio_partido.fk_id_municipio = municipio.id_municipio
+			and municipio_partido.fk_id_partido = partido.id_partido
+				# POBLACION
+			and poblacion.fk_id_municipio = municipio.id_municipio
+			and poblacion.fk_id_partido = partido.id_partido    
+
+		group by municipio, partido.nombre_partido
+		order by municipio, votos desc
+) a
+group by MUNI 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# partido politico y sus votos por municipio
+SELECT pais, municipio, partido.nombre_partido, sum(poblacion.analfabeto + poblacion.alfabeto) as votos
+FROM 	PARTIDO, MUNICIPIO_PARTIDO,
+		PAIS, REGION, DEPTO, MUNICIPIO,
+        poblacion
+WHERE
+		# PAIS - MUNICIPIO 
+		pais.id_pais = region.fk_id_pais
+	and region.id_region = depto.fk_id_region
+	and municipio.fk_id_depto = depto.id_depto
+		# PARTIDO
+	and municipio_partido.fk_id_municipio = municipio.id_municipio
+    and municipio_partido.fk_id_partido = partido.id_partido
+		# POBLACION
+	and poblacion.fk_id_municipio = municipio.id_municipio
+    and poblacion.fk_id_partido = partido.id_partido    
+
+group by municipio, partido.nombre_partido
+order by municipio, votos desc
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -146,7 +349,7 @@ where pais.id_pais = region.fk_id_pais
 
 
 
-use bases1p2
+use bases1p2;
 # pais con cantidad de votos por pais
 select eleccion.nombre_eleccion, eleccion.anio_eleccion , pais, sum(poblacion.analfabeto + poblacion.alfabeto) as votos
 from pais, region, depto, municipio, poblacion, eleccion, municipio_eleccion #, partido, partido_eleccion, municipio_partido, poblacion_eleccion
@@ -169,13 +372,31 @@ group by pais
 
 
 # MUNICIPIOS POR PAIS 
-SELECT PAIS.pais, MUNICIPIO.MUNICIPIO
+SELECT PAIS.pais, COUNT(MUNICIPIO.MUNICIPIO) CANTIDAD
 FROM PAIS, region , depto, municipio
 WHERE pais.id_pais = region.fk_id_pais
 	AND region.id_region = depto.fk_id_region
     AND depto.id_depto = municipio.fk_id_depto
     AND PAIS.PAIS = 'EL SALVADOR'
 ORDER BY MUNICIPIO;
+
+SELECT PAIS.pais, COUNT(MUNICIPIO.MUNICIPIO) CANTIDAD
+FROM PAIS, region , depto, municipio
+WHERE pais.id_pais = region.fk_id_pais
+	AND region.id_region = depto.fk_id_region
+    AND depto.id_depto = municipio.fk_id_depto
+    AND PAIS.PAIS = 'HONDURAS'
+ORDER BY MUNICIPIO;
+
+SELECT PAIS.pais, COUNT(MUNICIPIO.MUNICIPIO) CANTIDAD
+FROM PAIS, region , depto, municipio
+WHERE pais.id_pais = region.fk_id_pais
+	AND region.id_region = depto.fk_id_region
+    AND depto.id_depto = municipio.fk_id_depto
+    AND PAIS.PAIS = 'GUATEMALA'
+ORDER BY MUNICIPIO;
+
+
 
 
 
