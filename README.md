@@ -184,4 +184,4 @@ CREATE TABLE DETALLE_SEXO (
 	 
 
 #### ENTIDAD RELACION ####
-![ER PROYECTO 2](https://github.com/cesarchs/-BD1-PROYECTO2_201700634/blob/main/er.pdf)
+![ER PROYECTO 2](https://github.com/cesarchs/-BD1-PROYECTO2_201700634/blob/main/ER.JPG)
