@@ -1,0 +1,36 @@
+-mostrar bases de datos
+	show databases;
+-crear base de datos
+	create database <nombre de la base de datos>;
+-entrar a una base de datos
+	use <nombre de la base>;
+-crear tabla
+	create table <nombre de la tabla>(nombre de los campos y tipo de datos);
+	create table <nombre de la tabla>(nombre de los campos y tipo de datos si acepta null al final, si es primary key); 
+-agregar campo
+	alter table <nombre de la tabla> add <nombre del campo> <tipo de dato> (<longitud>) not null after <nombre del campo anterior>;
+-borrar campo
+	alter table <nombre de la tabla> drop <nombre del campo>;
+-borrar tabla 
+	drop table <nombre de la tabla>;
+-insertar registro
+	insert into <nombre de la tabla>(campos) values (valores);
+-eliminar registro
+	delete from <nombre de la tabla> where <condicion>;
+-borrar todos los registros de una tabla
+	truncate <nombre de la tabla>;
+-insertar llave foranea
+	alter table <nombre de la tabla> add foreing key(<nombre del campo>)references <nombre de la tabla padre>(campo);
+
+-mostrar campos de dos tablas relacionadas
+	SELECT <nombres de los campos separados por comas (si el campo es de la tabla padre <padre.campo>)> FROM <nombre de la tabla hija> INNER JOIN <tabla padre> ON <tablahija.llaveforanea>
+	SELECT*FROM <nombre de la tabla hija> INNER JOIN <tabla padre> ON <tablahija.llaveforanea>
+-cambiar nombre a una tabla
+	ALTER TABLE <nombre d la tabla> RENAME <nuevo nombre>;
+-cambiar nombre a un campo
+	ALTER TABLE <nombre de la tabla> CHANGE <nombre del campo>;
+-cambiar un registro
+	update <nombre de la tabla> set <nombre del campo>=<nuevo valor> where <nombre del campo>=<valor del campo>;
+Fin de la conversación
+Escribe un mensaje...
+
